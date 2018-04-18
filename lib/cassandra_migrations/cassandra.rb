@@ -50,35 +50,36 @@ module CassandraMigrations
     ##
     # Use the keyspace specified in an additional keyspace environment of the config/cassandra.yml file.
     # In order for this to work, such environemnts in the YAML file must have names conforming to the
-    # {prefix}-{environment} format, where {prefix} is some name, and {environment} is one of the main Rails
-    # environment names.  For example, by defining foo1-development, foo1-test and foo1-production in
-    # config/cassandra.yml, a migration can invoke .use_keyspace("foo1") to target the keyspace
-    # specified therein, in accordance with the Rails environment names.  This approach is better than
-    # the .using_keyspace method because it makes a migration targeting an additional keyspace usable
-    # in all Rails environments the application needs to run in.
+    # {prefix}-{environment} format, where {prefix} is some name of your choosing, and {environment}
+    # is one of the main Rails environment names.  For example, by defining foo1-development, foo1-test,
+    # and foo1-production in config/cassandra.yml, a migration can invoke .use_keyspace("foo1") to target
+    # the keyspace specified therein, in accordance with the Rails environment names.  This approach is better
+    # than the .using_keyspace method because it makes a migration targeting additional keyspaces usable
+    # in all Rails environments the application needs to run in, regardless of the actual keyspace names.
     # @param prefix [String] The prefix portion of an additional keyspace environment
-    def self.use_keyspace(prefix, &block)
-      env_name = "#{prefix.to_s}-#{Rails.env}"
+    # @param suffix [String] Optional; if provided, it will be used as the suffix instead of Rails.env
+    def self.use_keyspace(prefix, suffix=nil, &block)
+      env_name = "#{prefix.to_s}-#{suffix || Rails.env}"
       keyspace = CassandraMigrations::Config.configurations[env_name].keyspace
-      puts "  Use keyspace #{keyspace} from #{env_name} in config/cassandra.yml"
+      puts "  Using keyspace \"#{keyspace}\" from #{env_name} in config/cassandra.yml"
       use(keyspace)
       begin
         # invoke the block in the other namespace
         block.call
       ensure
-        # always switch back to the main keyspace
+        # always switch back to the default keyspace
         use(Config.keyspace)
       end
     end
 
     def self.using_keyspace(keyspace, &block)
-      puts "  using_keyspace(#{keyspace})"
+      puts "  Using keyspace \"#{keyspace}\""
       use(keyspace)
       begin
         # invoke the block in the other namespace
         block.call
       ensure
-        # always switch back to the main keyspace
+        # always switch back to the default keyspace
         use(Config.keyspace)
       end
     end
