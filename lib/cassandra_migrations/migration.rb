@@ -3,6 +3,7 @@
 require "benchmark"
 require 'cassandra_migrations/migration/table_operations'
 require 'cassandra_migrations/migration/column_operations'
+require 'cassandra_migrations/migration/view_operations'
 
 module CassandraMigrations
   
@@ -11,6 +12,7 @@ module CassandraMigrations
     
     include TableOperations
     include ColumnOperations
+    include ViewOperations
     
     # Makes +execute+ method directly available to migrations
     delegate :execute, :to => Cassandra
