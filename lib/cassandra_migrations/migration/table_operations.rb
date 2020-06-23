@@ -89,6 +89,14 @@ module CassandraMigrations
         end
       end
 
+      def unless_table_exists?(table_name)
+        unless table_exists?(table_name)
+          yield(table_name)
+        else
+          puts "table #{table_name} already exists"
+        end
+      end
+
       def clustering_order_cql_for(table_schema)
         table_schema.clustering_columns.map do |column|
           "#{column.name} #{column.clustering_order}"
