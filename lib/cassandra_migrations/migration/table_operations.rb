@@ -81,6 +81,34 @@ module CassandraMigrations
         execute drop_index_cql
       end
 
+      def if_table_exists?(table_name)
+        if table_exists?(table_name)
+          yield(table_name)
+        else
+          puts "table #{table_name} does not exist"
+        end
+      end
+
+      def clustering_order_cql_for(table_schema)
+        table_schema.clustering_columns.map do |column|
+          "#{column.name} #{column.clustering_order}"
+        end.join(", ")
+      end
+
+      private
+
+      def table_exists?(table_name)
+        !execute(select_table_query(table_name)).empty?
+      end
+
+      def select_table_query(table_name)
+        <<~CQL
+          SELECT *
+          FROM system_schema.tables
+          WHERE keyspace_name = '#{Config.keyspace}'
+          AND table_name = '#{table_name}'
+        CQL
+      end
     end
   end
 end
