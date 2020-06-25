@@ -216,8 +216,18 @@ module CassandraMigrations
                     binary: :blob }
 
       PRECISION_MAP = {
-                        integer: { 4 => :int, 8 => :bigint, nil => :int },
-                        float: { 4 => :float, 8 => :double, nil => :float }
+                        integer: {
+                          1 => :tinyint,
+                          2 => :smallint,
+                          4 => :int,
+                          8 => :bigint,
+                          nil => :int
+                        },
+                        float: {
+                          4 => :float,
+                          8 => :double,
+                          nil => :float
+                        }
                       }
 
       SPECIAL_OPTIONS_MAP = {
